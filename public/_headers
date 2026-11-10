@@ -1,0 +1,8 @@
+# En-têtes de sécurité envoyés par Netlify pour toutes les pages.
+# Si tu changes de projet Supabase, remplace foarpenxuqjnkhczinwi.supabase.co ci-dessous (3 fois).
+/*
+  Content-Security-Policy: default-src 'self'; script-src 'self'; style-src 'self' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data: blob: https://foarpenxuqjnkhczinwi.supabase.co; connect-src 'self' https://foarpenxuqjnkhczinwi.supabase.co wss://foarpenxuqjnkhczinwi.supabase.co; object-src 'none'; base-uri 'none'; form-action 'self'; frame-ancestors 'none'
+  X-Frame-Options: DENY
+  Referrer-Policy: no-referrer
+  X-Content-Type-Options: nosniff
+  Permissions-Policy: camera=(), microphone=(), geolocation=(), payment=(), usb=(), interest-cohort=()

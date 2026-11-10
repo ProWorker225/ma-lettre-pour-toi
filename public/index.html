@@ -1,0 +1,252 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="referrer" content="no-referrer">
+<title>Une lettre pour toi</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 22'%3E%3Cpath fill='%23b0123c' d='M12 21C5 16 0 12 0 6.5 0 3 2.7 0 6.2 0 8.6 0 10.6 1.3 12 3.3 13.4 1.3 15.4 0 17.8 0 21.3 0 24 3 24 6.5 24 12 19 16 12 21Z'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600&family=Nunito:ital,wght@0,400;0,600;0,700;1,400&family=Caveat:wght@500&family=Noto+Emoji:wght@500&display=swap">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div class="crosses" id="crosses" aria-hidden="true"></div>
+
+<!-- ============ Configuration manquante ============ -->
+<div class="view page" id="v-config" hidden>
+  <div class="window">
+    <div class="titlebar"><span>♥ installation.exe</span></div>
+    <div class="panel">
+      <div class="notice">Le site n'est pas encore relié à Supabase. Ouvre <code>config.js</code> et remplace les deux valeurs par celles de ton projet (voir <code>LISEZMOI.md</code>).</div>
+    </div>
+  </div>
+</div>
+
+<!-- ============ Connexion admin ============ -->
+<div class="view page" id="v-auth" hidden>
+  <div class="window">
+    <div class="titlebar"><span>♥ connexion.exe</span></div>
+    <form class="panel" id="authForm">
+      <p class="intro">Connecte-toi pour préparer tes surprises. Pour créer un compte, il te faut un code d'activation. La personne qui reçoit ton lien, elle, n'a pas besoin de compte.</p>
+      <div class="tabs">
+        <button type="button" class="pill solid" id="tabLogin">Se connecter</button>
+        <button type="button" class="pill" id="tabSignup">Créer un compte</button>
+      </div>
+      <label class="field"><span>E-mail</span><input type="email" id="a-email" autocomplete="email" required></label>
+      <label class="field" id="pwField"><span>Mot de passe</span><input type="password" id="a-pass" autocomplete="current-password" required><small id="pwHelp" hidden>8 caractères minimum.</small></label>
+      <label class="field" id="codeField" hidden><span>Code d'activation</span><input type="text" id="a-code" autocomplete="off" placeholder="XXXX-XXXX-XXXX" maxlength="20"><small class="contact-line"></small></label>
+      <button type="button" class="linkbtn" id="forgotBtn">Mot de passe oublié ?</button>
+      <div class="actions">
+        <span class="msg" id="authMsg" role="status"></span>
+        <button type="submit" class="pill solid" id="authBtn">Se connecter</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- ============ Activation du compte ============ -->
+<div class="view page" id="v-activate" hidden>
+  <div class="window">
+    <div class="titlebar"><span>♥ activation.exe</span></div>
+    <form class="panel" id="activateForm">
+      <div class="who"><span id="actEmail"></span><button type="button" class="pill" id="actLogout">Se déconnecter</button></div>
+      <p class="intro" id="actIntro">Ton compte est créé, il reste à l'activer. Entre le code d'activation qu'on t'a donné.</p>
+      <label class="field"><span>Code d'activation</span><input type="text" id="act-code" autocomplete="off" placeholder="XXXX-XXXX-XXXX" maxlength="20" required><small class="contact-line"></small></label>
+      <div class="actions">
+        <span class="msg" id="actMsg" role="status"></span>
+        <button type="submit" class="pill solid" id="actBtn">Activer mon compte</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- ============ Espace propriétaire ============ -->
+<div class="view page" id="v-owner" hidden>
+  <div class="window">
+    <div class="titlebar"><span>♥ proprietaire.exe</span><button class="xbtn" id="ownerClose" type="button" aria-label="Retour à mes surprises">×</button></div>
+    <div class="panel">
+      <h2>CODES D'ACTIVATION</h2>
+      <form class="gen" id="genForm">
+        <label class="field"><span>Nombre</span><input type="text" id="g-count" inputmode="numeric" value="1" maxlength="2"></label>
+        <label class="field grow"><span>Note (client, commande…)</span><input type="text" id="g-note" maxlength="80" placeholder="Ex. : Kevin, payé le 18/10"></label>
+        <button type="submit" class="pill solid" id="genBtn">Générer</button>
+      </form>
+      <span class="msg" id="genMsg" role="status"></span>
+      <div class="table-wrap"><table class="tbl" id="codesTbl"></table></div>
+
+      <h2>CLIENTS</h2>
+      <div class="table-wrap"><table class="tbl" id="membersTbl"></table></div>
+
+      <h2>COMPTES NON ACTIVÉS</h2>
+      <p class="intro">Inscrits sans code valide. Ils ne peuvent rien faire ; tu peux les supprimer.</p>
+      <div class="table-wrap"><table class="tbl" id="pendingTbl"></table></div>
+
+      <h2>MAINTENANCE</h2>
+      <p class="intro">Photos envoyées mais utilisées par aucune surprise depuis plus de 24 h (envoi abandonné, erreur…).</p>
+      <div class="actions">
+        <span class="msg" id="orphMsg" role="status"></span>
+        <button type="button" class="pill" id="orphFind">Chercher les photos inutilisées</button>
+        <button type="button" class="pill danger" id="orphDel" hidden>Supprimer</button>
+      </div>
+
+      <div class="actions">
+        <span class="msg" id="ownerMsg" role="status"></span>
+        <button type="button" class="pill" id="ownerBack">← Mes surprises</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ============ Nouveau mot de passe ============ -->
+<div class="view page" id="v-reset" hidden>
+  <div class="window">
+    <div class="titlebar"><span>♥ nouveau-mot-de-passe.exe</span></div>
+    <form class="panel" id="resetForm">
+      <input type="email" id="r-user" autocomplete="username" hidden>
+      <label class="field"><span>Nouveau mot de passe</span><input type="password" id="r-pass" autocomplete="new-password" minlength="8" required><small>8 caractères minimum.</small></label>
+      <div class="actions">
+        <span class="msg" id="resetMsg" role="status"></span>
+        <button type="submit" class="pill solid">Enregistrer</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- ============ Mes surprises ============ -->
+<div class="view page" id="v-dash" hidden>
+  <div class="window">
+    <div class="titlebar"><span>♥ mes-surprises.exe</span></div>
+    <div class="panel">
+      <div class="who"><span id="whoEmail"></span><span class="who-btns"><button type="button" class="pill solid" id="ownerBtn" hidden>★ Propriétaire</button><button type="button" class="pill" id="logoutBtn">Se déconnecter</button></span></div>
+      <p class="intro">Chaque surprise a son propre lien. La personne qui l'ouvre ne voit que la sienne, après avoir tapé le code.</p>
+      <div class="list" id="list"></div>
+      <div class="actions">
+        <span class="msg" id="dashMsg" role="status"></span>
+        <button type="button" class="pill solid" id="newBtn">+ Nouvelle surprise</button>
+      </div>
+      <div class="foot-links">
+        <button type="button" class="linkbtn danger-link" id="delAccountBtn">Supprimer mon compte et mes données</button>
+      </div>
+      <span class="msg" id="delAccountMsg" role="status"></span>
+    </div>
+  </div>
+</div>
+
+<!-- ============ Réglages d'une surprise ============ -->
+<div class="view page" id="v-form" hidden>
+  <div class="window">
+    <div class="titlebar"><span>♥ réglages.exe</span><button class="xbtn" id="formClose" type="button" aria-label="Retour à mes surprises">×</button></div>
+    <form class="panel" id="form">
+      <p class="intro">Remplis la surprise. Quand tu enregistres, elle reçoit son propre lien à envoyer.</p>
+      <label class="field"><span>Pour qui ?</span><input type="text" id="f-name" maxlength="40" required placeholder="Son prénom"><small>Pour t'y retrouver dans ta liste. Le prénom n'apparaît pas dans le lien.</small></label>
+      <div class="field">
+        <span>Photos</span>
+        <small>1re photo : bannière du profil. 2e : photo de profil. 3e : le cœur de l'écran du code. Toutes sortent du Polaroid dans cet ordre, avec la légende écrite dessous. Les flèches ← → changent l'ordre.</small>
+        <div class="thumbs" id="thumbs"></div>
+      </div>
+      <div class="row2">
+        <label class="field"><span>Code (6 chiffres)</span><input type="text" id="f-code" inputmode="numeric" maxlength="6" required placeholder="Ex. : une date qui compte"><small>Elle devra le trouver grâce à l'indice.</small></label>
+        <label class="field"><span>Début de votre histoire</span><input type="date" id="f-date" required><small>Le jour où vous êtes ensemble. Sert à afficher « X jours ensemble ».</small></label>
+      </div>
+      <label class="field"><span>Indice</span><input type="text" id="f-hint" maxlength="120" placeholder="Ex. : le jour de notre première rencontre"><small>Visible avant le code, pour l'aider à le trouver.</small></label>
+      <label class="field"><span>Petit message du profil</span><input type="text" id="f-status" maxlength="80"></label>
+      <label class="field"><span>Titre de la lettre</span><input type="text" id="f-title" maxlength="80"></label>
+      <label class="field"><span>Texte de la lettre</span><textarea id="f-text" rows="7" maxlength="10000"></textarea><small>Laisse une ligne vide entre deux paragraphes.</small></label>
+      <label class="field"><span>Signature</span><input type="text" id="f-sign" maxlength="60"></label>
+      <div class="actions">
+        <span class="msg" id="formMsg" role="status"></span>
+        <button type="button" class="pill" id="backBtn">← Mes surprises</button>
+        <button type="submit" class="pill solid" id="saveBtn">♥ Enregistrer</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- ============ La surprise (ce que voit la personne) ============ -->
+<div class="view wrap" id="v-surprise" hidden>
+  <div class="window">
+    <div class="titlebar"><span>♥ pour-toi.exe</span><button class="xbtn" id="lockBtn" type="button" aria-label="Verrouiller">×</button></div>
+    <div class="panel">
+
+      <section class="screen" id="s-lock">
+        <div class="lock">
+          <div class="heart-wrap">
+            <div class="heart" id="heartGrid"></div>
+            <span class="lips lips-1"></span>
+            <span class="lips lips-2"></span>
+            <span class="lips lips-3"></span>
+          </div>
+          <div class="keypad">
+            <div class="code" id="code" aria-live="polite"></div>
+            <div class="keys" id="keys"></div>
+          </div>
+        </div>
+        <div class="hintzone">
+          <div class="hintline code-msg" id="codeMsg" role="status"></div>
+          <button class="pill hintbtn" id="hintBtn" type="button" aria-expanded="false" hidden>Indice ?</button>
+          <div class="hintline" id="hint" aria-live="polite"></div>
+        </div>
+      </section>
+
+      <section class="screen" id="s-profile" hidden>
+        <div class="banner photo" data-photo="0"></div>
+        <div class="stitch"></div>
+        <div class="me">
+          <div class="avatar photo" data-photo="1"></div>
+          <div class="bubble" id="status"></div>
+        </div>
+        <div class="stats">
+          <div class="stat"><b id="days">0</b><span>jours ensemble</span></div>
+          <div class="stat"><b id="since">—</b><span>depuis</span></div>
+          <div class="stat"><b>∞</b><span>bisous</span></div>
+        </div>
+      </section>
+
+      <section class="screen" id="s-read" hidden>
+        <h2 id="readTitle">Read Me! Read Me! Read Me, pls!</h2>
+        <div class="env-zone">
+          <div class="envelope" id="env">
+            <span class="e-back"></span><span class="e-front"></span><span class="e-flap"></span>
+            <span class="e-heart" id="eHeart"></span>
+          </div>
+          <article class="paper" id="paper" aria-live="polite">
+            <h3 id="pTitle"></h3>
+            <div class="pbody" id="pBody"></div>
+            <span class="sign" id="pSign"></span>
+          </article>
+          <button class="pill" id="readBtn" type="button">♥ Read Me</button>
+        </div>
+      </section>
+
+      <section class="screen" id="s-mem" hidden>
+        <h2>OUR MEMORIES</h2>
+        <div class="mem">
+          <span class="lips lips-4"></span>
+          <span class="lips lips-5"></span>
+          <span class="lips lips-6"></span>
+          <div class="camera" aria-hidden="true">
+            <div class="cam-top"><span class="rainbow"></span><span class="lens"></span><span class="flash"></span></div>
+            <div class="cam-bottom"><span class="cam-slot"></span></div>
+          </div>
+          <div class="strip" id="strip"></div>
+        </div>
+      </section>
+
+      <nav class="nav" id="nav" hidden>
+        <button class="pill" type="button" data-go="s-profile">☰ Profil</button>
+        <button class="pill" type="button" data-go="s-read">✉ Read Me</button>
+        <button class="pill" type="button" data-go="s-mem">▣ Our Memories</button>
+      </nav>
+    </div>
+    <div class="caption">( Fait avec amour )</div>
+  </div>
+</div>
+
+<script src="vendor/supabase.js"></script>
+<script src="vendor/qrcode.min.js"></script>
+<script src="config.js"></script>
+<script src="app.js"></script>
+</body>
+</html>
