@@ -1,4 +1,6 @@
-# Une lettre pour toi : installation et fonctionnement
+# Ma lettre pour toi : installation et fonctionnement
+
+Site en ligne : https://ma-lettre-pour-toi.vercel.app
 
 Le site a trois côtés :
 
@@ -6,15 +8,16 @@ Le site a trois côtés :
 - **Les clients** créent un compte avec un code d'activation, puis préparent une ou plusieurs surprises : photos, lettre, code à 6 chiffres. Chaque client ne voit que ses propres surprises.
 - **La personne qui reçoit le lien** (par exemple la copine) ouvre la surprise sans compte, après avoir tapé le bon code.
 
-Il faut deux services gratuits : **Supabase** (comptes, données, photos et une petite fonction serveur) et **Netlify** (hébergement du site).
+Il faut deux services gratuits : **Supabase** (comptes, données, photos et une petite fonction serveur) et **Vercel** (hébergement du site, relié au dépôt GitHub).
 
 ## Organisation du dossier
 
 ```
 surprise-site/
-├─ public/                  ← le site : C'EST CE DOSSIER QU'ON GLISSE SUR NETLIFY
+├─ public/                  ← le site : C'EST LE SEUL DOSSIER PUBLIÉ PAR VERCEL
 │  ├─ index.html, app.js, style.css, config.js
-│  ├─ _headers              (en-têtes de sécurité lus par Netlify)
+│  ├─ vercel.json           (en-têtes de sécurité lus par Vercel)
+│  ├─ _headers              (les mêmes en-têtes, ancien format Netlify)
 │  ├─ vendor/               (bibliothèques supabase-js et qrcode, copiées ici)
 │  └─ twemoji/              (dessins des émojis visages, licence CC BY 4.0)
 ├─ supabase/
@@ -23,7 +26,7 @@ surprise-site/
 └─ LISEZMOI.md
 ```
 
-Ne glisse **jamais** le dossier `surprise-site` entier sur Netlify : `supabase.sql` et ce fichier deviendraient publics.
+Ne publie **jamais** le dossier `surprise-site` entier : dans Vercel, **Root Directory** doit rester `public`, sinon `supabase.sql` et ce fichier deviendraient publics.
 
 ---
 
@@ -58,7 +61,7 @@ La fonction utilise la clé `service_role`, que Supabase lui fournit automatique
 
 1. **Project Settings → API Keys** : copie la **Project URL** et la **publishable key** (`sb_publishable_…`).
 2. Mets-les dans `public/config.js`.
-3. Dans `public/_headers`, remplace `foarpenxuqjnkhczinwi.supabase.co` par l'adresse de ton projet (3 fois).
+3. Dans `public/vercel.json`, remplace `foarpenxuqjnkhczinwi.supabase.co` par l'adresse de ton projet (3 fois).
 
 ### 5. Réglages de sécurité de Supabase
 
@@ -66,14 +69,15 @@ La fonction utilise la clé `service_role`, que Supabase lui fournit automatique
   Sans confirmation, n'importe qui peut créer un compte au nom d'une adresse qui n'est pas la sienne et bloquer ainsi l'inscription de la vraie personne.
   Le service d'envoi gratuit de Supabase est limité à quelques e-mails par heure. Pour vendre le service, branche un envoi SMTP gratuit (Resend, Brevo…) dans **Authentication → Emails → SMTP Settings**.
 - **Mot de passe** : Authentication → Sign In / Providers → Email (ou Policies) → **Minimum password length : 8**. Si ton offre le permet, active aussi la protection contre les mots de passe divulgués.
-- **Authentication → URL Configuration → Site URL** : colle l'adresse Netlify (étape 6). Ça sert aux e-mails de confirmation et de mot de passe oublié.
+- **Authentication → URL Configuration → Site URL** : colle l'adresse Vercel (étape 6), et ajoute-la aussi dans **Redirect URLs**. Ça sert aux e-mails de confirmation et de mot de passe oublié.
 
-### 6. Mettre en ligne sur Netlify
+### 6. Mettre en ligne sur Vercel
 
-1. Va sur https://app.netlify.com/drop.
-2. Glisse **le dossier `public`** (et non `surprise-site`).
-3. Renomme le site si tu veux (**Project configuration → Change project name**).
-4. Si un cadenas apparaît à côté du nom : **Access & security → Visitor access → No protection**.
+1. Envoie le projet sur GitHub (`git push`).
+2. Sur https://vercel.com : **Add New → Project**, puis **Import** du dépôt.
+3. **Root Directory** : choisis `public` (et non la racine du dépôt). **Framework Preset** : Other, sans commande de build.
+4. Clique sur **Deploy**.
+5. Pour changer l'adresse : **Settings → Domains → Add Domain** (par exemple `ma-lettre-pour-toi.vercel.app`).
 
 ### 7. Vérifier
 
@@ -87,7 +91,7 @@ La fonction utilise la clé `service_role`, que Supabase lui fournit automatique
 
 1. Relance `supabase/supabase.sql` en entier. L'ancien propriétaire (configuré par e-mail) est conservé, et tu peux aussi coller ton User UID en haut du fichier.
 2. Déploie la fonction `open-surprise` (étape 3). **Sans elle, aucune surprise ne s'ouvre**, car les photos sont maintenant privées.
-3. Sur Netlify (**Deploys**), glisse le dossier **`public`**. L'ancien dossier publié contenait `supabase.sql` : le nouveau déploiement le remplace.
+3. Fais un `git push` : Vercel republie le dossier `public` tout seul.
 4. Réactive **Confirm email** et règle le mot de passe à 8 caractères (étape 5).
 
 Les comptes, codes, surprises, photos et anciens liens continuent de marcher.
@@ -122,7 +126,7 @@ Les comptes, codes, surprises, photos et anciens liens continuent de marcher.
 
 ### Mettre à jour le site plus tard
 
-Après une modification, retourne sur Netlify : **Deploys → glisse à nouveau le dossier `public`**. Les données ne bougent pas : elles sont dans Supabase.
+Après une modification, fais `git add`, `git commit` puis `git push` : Vercel met le site à jour tout seul en une minute environ. Les données ne bougent pas : elles sont dans Supabase.
 
 ---
 

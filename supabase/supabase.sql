@@ -1,5 +1,5 @@
 -- =========================================================================
---  Une lettre pour toi : schéma Supabase
+--  Ma lettre pour toi : schéma Supabase
 --  À coller en entier dans Supabase > SQL Editor, puis cliquer sur "Run".
 --  Ré-exécutable sans danger : rien n'est effacé (surprises, comptes, codes, photos).
 --  Le résultat affiché à la fin dit si le propriétaire est bien configuré.

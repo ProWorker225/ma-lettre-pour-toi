@@ -1,4 +1,4 @@
-/* Une lettre pour toi : espace admin (Supabase) + surprise à code. */
+/* Ma lettre pour toi : espace admin (Supabase) + surprise à code. */
 const $ = id => document.getElementById(id);
 const CFG = window.SURPRISE_CONFIG || {};
 const BUCKET = "photos";
