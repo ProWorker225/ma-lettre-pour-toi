@@ -1,26 +1,29 @@
-/* Layout : fond et interface blancs, bordures gris clair ; seule l'écriture est en couleur (bordeaux, doré) ; 4 écrans (code, profil, lettre, souvenirs) + espace admin (connexion, liste, réglages). Thème clair unique. */
+/* Layout : couleurs d'origine (fenêtres rose, texte crème, rose foncé, bordeaux) sur la mise en page actuelle ; 4 écrans (code, profil, lettre, souvenirs) + espace admin (connexion, liste, réglages). Thème clair unique. */
 :root {
   color-scheme: light;
-  --desk: #ffffff;        /* fond blanc */
-  --card: #ffffff;        /* cartes blanches */
-  --cream: #ffffff;       /* alias conservé */
-  --blush: #f7f6f6;       /* blanc cassé neutre (surfaces douces) */
-  --field: #ffffff;
-  --rose: #e9e5e7;        /* gris clair (décor) */
-  --rose-deep: #d6cfd2;   /* gris (traits, pointillés) */
-  --pink: #d6cfd2;        /* alias conservé */
-  --pink-deep: #7a1f3d;   /* alias conservé */
-  --wine: #7a1f3d;        /* bordeaux : titres, liens, texte des boutons */
-  --wine-dark: #5f1730;
-  --gold: #a07a3c;        /* doré : sur-titres */
-  --ink: #2b2326;         /* texte */
-  --muted: #7d7176;       /* texte secondaire */
-  --line: #ece7e9;        /* bordures */
-  --line-strong: #ddd6d9;
-  --danger: #b3263e;
-  --paper-ink: #2b2326;
-  --paper-wine: #7a1f3d;
-  --shadow: 0 1px 2px rgba(43, 35, 38, .04), 0 16px 40px -20px rgba(43, 35, 38, .18);
+  /* couleurs d'origine du site */
+  --desk: #f4eef0;        /* fond de page */
+  --cross: #f2b8c8;
+  --pink: #e07a9c;        /* fenêtres */
+  --pink-deep: #c9567d;   /* bordures, texte sur fond clair */
+  --blush: #fbe3ea;       /* surfaces claires */
+  --cream: #fffafb;       /* texte sur rose, papier */
+  --wine: #b0123c;        /* accents */
+  --ink: #5a2a3c;         /* texte foncé */
+  /* rôles (hors fenêtres) */
+  --card: #fffafb;
+  --field: #fbe3ea;
+  --rose: #f2b8c8;
+  --rose-deep: #e07a9c;
+  --wine-dark: #8f0f31;
+  --gold: #c9567d;        /* sur-titres */
+  --muted: #7a4a5c;
+  --line: #f0cdd8;
+  --line-strong: #c9567d;
+  --danger: #b0123c;
+  --paper-ink: #5a2a3c;
+  --paper-wine: #b0123c;
+  --shadow: 0 12px 30px -18px rgba(90, 42, 60, .35);
   --f-head: "Cormorant Garamond", "Garamond", Georgia, serif;
   --f-body: "Jost", "Segoe UI", system-ui, sans-serif;
   --f-hand: "Cormorant Garamond", "Noto Emoji", Georgia, serif;
@@ -45,7 +48,7 @@ body {
 .crosses i:nth-child(4n) { width: 16px; height: 16px; animation-delay: -3.3s; }
 @keyframes twinkle { 0%, 100% { opacity: .5; } 50% { opacity: .2; } }
 .crosses i::before {
-  content: ""; position: absolute; inset: 0; background: #e6e0e3;
+  content: ""; position: absolute; inset: 0; background: var(--cross);
   clip-path: polygon(50% 0, 60% 40%, 100% 50%, 60% 60%, 50% 100%, 40% 60%, 0 50%, 40% 40%);
 }
 
@@ -456,3 +459,118 @@ a.pill { text-decoration: none; }
   .demo-bar { border-radius: 16px; font-size: 12px; }
   .pill.big { width: 100%; }
 }
+
+
+/* =====================================================================
+   COULEURS D'ORIGINE : fenêtres roses, texte crème, éléments clairs bordés de rose foncé
+   ===================================================================== */
+/* Dans les panneaux roses, le texte devient crème */
+.window, .steps li, .tech > div, .demo-bar {
+  --ink: #fffafb; --muted: #fff1f5; --wine: #fffafb; --gold: #fffafb;
+  --line: rgba(255, 250, 251, .45); --rose-deep: #fffafb; --card: #e07a9c;
+  background: #e07a9c; border: 2px solid #c9567d; color: #fffafb;
+}
+.window { box-shadow: var(--shadow); }
+.titlebar::before, .titlebar::after { background: linear-gradient(90deg, transparent, #fffafb); }
+.stitch { border-top: 3px dotted #fffafb; }
+
+/* boutons */
+.pill { background: #fbe3ea; color: #c9567d; border: 2px solid #c9567d; font-weight: 600; }
+.pill:hover { background: #fbe3ea; }
+.pill.on, .pill.solid { background: #fffafb; color: #c9567d; border-color: #c9567d; box-shadow: none; }
+.pill.solid:hover { background: #fffafb; border-color: #b0123c; color: #b0123c; }
+.pill.danger { color: #b0123c; border-color: #b0123c; }
+.xbtn { background: #fbe3ea; color: #c9567d; border: 2px solid #c9567d; }
+.xbtn:hover { color: #b0123c; border-color: #b0123c; }
+.tabs { background: none; padding: 0; gap: 8px; }
+.tabs .pill { border-color: #c9567d; }
+.tabs .pill:not(.solid):hover { background: #fbe3ea; }
+
+/* écran du code */
+.photo { background: linear-gradient(135deg, #f7c6d4, #e9a2b9); color: #fffafb; }
+.lips { color: #b0123c; opacity: 1; }
+.code { background: #fbe3ea; border: 2px solid #c9567d; color: #c9567d; }
+.dot { border: 2px solid #c9567d; }
+.dot.full { background: #c9567d; }
+.key { background: #fffafb; border: 2px solid #c9567d; color: #c9567d; }
+.key:hover { border-color: #b0123c; }
+.key:active { background: #fbe3ea; }
+.hintline.bubble-hint { background: #fffafb; color: #5a2a3c; }
+.hintbtn[aria-expanded="true"] { background: #fffafb; }
+
+/* profil */
+.banner { border: 2px solid #c9567d; }
+.avatar { border: 3px solid #fffafb; box-shadow: none; }
+.bubble { background: #fbe3ea; border: 2px solid #c9567d; color: #c9567d; }
+.stat { background: #fbe3ea; border: 0; }
+.stat b { color: #c9567d; }
+.stat span { color: #5a2a3c; }
+
+/* lettre et souvenirs */
+.e-back { background: #f3d0da; border: 2px solid #c9567d; }
+.e-front { background: #fffafb; }
+.e-flap { background: #f3d0da; }
+.e-front::after { background: #e07a9c; box-shadow: 0 8px 0 #e07a9c; }
+.e-heart { background: #fffafb; border: 2px solid #c9567d; color: #b0123c; }
+.paper { background-color: #fffafb; border-color: #f3d6de; outline-color: #f3d6de; }
+.polaroid { background: #fffafb; border: 0; box-shadow: 0 3px 8px rgba(90, 42, 60, .25); }
+.cam-top { background: #efe6d8; border: 2px solid #3a2a2e; }
+.cam-bottom { background: #2b2226; }
+.rainbow { background: #b0123c; border: 2px solid #3a2a2e; }
+
+/* formulaires */
+.page input[type=text], .page input[type=email], .page input[type=password], .page input[type=date], .page textarea {
+  background: #fbe3ea; color: #5a2a3c; border: 2px solid #c9567d;
+}
+.page input:focus, .page textarea:focus { border-color: #b0123c; box-shadow: 0 0 0 3px rgba(255, 250, 251, .5); }
+.page input::placeholder, .page textarea::placeholder { color: #c98aa0; }
+.linkbtn.danger-link { color: #fffafb; }
+.notice { background: #fffafb; color: #5a2a3c; }
+.notice code { background: #fbe3ea; }
+.addphoto { background: transparent; border: 2px dashed #fffafb; color: #fffafb; }
+.addphoto:hover { background: rgba(255, 250, 251, .15); }
+.tcell { background: #fffafb; border: 0; box-shadow: 0 3px 8px rgba(90, 42, 60, .25); }
+.thumb b { color: #c9567d; }
+.thumb button { color: #c9567d; border: 1.5px solid #c9567d; }
+
+/* mes surprises, espace propriétaire */
+.item { background: #fffafb; border: 2px solid #c9567d; }
+.item:hover { border-color: #b0123c; box-shadow: none; }
+.item .pic { border: 2px solid #c9567d; box-shadow: none; }
+.item-name { color: #c9567d; }
+.item-meta { color: #5a2a3c; }
+.linkbtn.mini { color: #c9567d; }
+.linkrow input { background: #fbe3ea; color: #5a2a3c; border: 1.5px solid #c9567d; }
+.empty { background: #fbe3ea; border: 2px dashed #c9567d; color: #c9567d; }
+.qrtip { color: #5a2a3c; }
+.table-wrap { background: #fffafb; border: 2px solid #c9567d; }
+.tbl { color: #5a2a3c; }
+.tbl th { color: #c9567d; }
+.tbl td { border-top-color: #fbe3ea; }
+.tbl td.mono { color: #b0123c; }
+.tbl td.empty-row { color: #c9567d; }
+.tbl tr.new td { background: #fff6d9; }
+.chip.free { background: #dff3e4; color: #1f6b3a; }
+.chip.used { background: #fbe3ea; color: #c9567d; }
+.chip.off { background: #f1e3e3; color: #8a1f1f; }
+.oldlink { background: #fff6d9; color: #5a2a3c; }
+
+/* vitrine */
+.home .linkbtn { color: #c9567d; text-decoration-color: #e07a9c; }
+.home .linkbtn:hover { color: #b0123c; }
+.brand { color: #b0123c; }
+.brand span { color: #e07a9c; }
+.hero h1 { color: #5a2a3c; }
+.hero h1 em { color: #b0123c; }
+.ha-envelope { background: #f3d0da; border: 2px solid #c9567d; box-shadow: var(--shadow); }
+.ha-envelope::before { background: #fffafb; }
+.ha-flap { background: #f7c6d4; }
+.ha-seal { background: #fffafb; border: 2px solid #c9567d; color: #b0123c; }
+.ha-polaroid { background: #fffafb; border: 0; box-shadow: 0 6px 16px rgba(90, 42, 60, .3); }
+.ha-code { background: #fbe3ea; border: 2px solid #c9567d; box-shadow: none; }
+.ha-code i { border: 2px solid #c9567d; }
+.ha-code i.on { background: #c9567d; }
+.steps li > b { background: #fbe3ea; color: #c9567d; }
+.stack li { background: #fbe3ea; border: 0; color: #c9567d; }
+.home-foot b { color: #b0123c; }
+.demo-bar { color: #fffafb; }

@@ -617,27 +617,27 @@ $("delAccountBtn").addEventListener("click", async () => {
   }
 });
 
-/* ----- QR code : une petite carte blanche à imprimer ou envoyer ----- */
+/* ----- QR code : une petite carte rose à imprimer ou envoyer ----- */
 function drawQrCard(url) {
   const qr = qrcode(0, "H"); qr.addData(url); qr.make();
   const n = qr.getModuleCount(), cell = Math.floor(560 / n), size = cell * n;
   const W = size + 160, H = size + 300;
   const c = document.createElement("canvas"); c.width = W; c.height = H;
   const g = c.getContext("2d");
-  g.fillStyle = "#ffffff"; g.fillRect(0, 0, W, H);                                 // carte blanche
+  g.fillStyle = "#e07a9c"; g.fillRect(0, 0, W, H);                                 // carte rose
   const ox = 80, oy = 120;
-  g.fillStyle = "#f7f6f6"; roundRect(g, ox - 30, oy - 30, size + 60, size + 60, 28); g.fill();
-  g.fillStyle = "#7e2440";
+  g.fillStyle = "#fffafb"; roundRect(g, ox - 30, oy - 30, size + 60, size + 60, 28); g.fill();
+  g.fillStyle = "#b0123c";
   for (let r = 0; r < n; r++) for (let col = 0; col < n; col++)
     if (qr.isDark(r, col)) g.fillRect(ox + col * cell, oy + r * cell, cell, cell);
   // cœur au centre (le QR reste lisible grâce à la correction d'erreur "H")
   const hs = size * 0.2, hx = ox + size / 2, hy = oy + size / 2;
   g.fillStyle = "#fffdf9"; roundRect(g, hx - hs * .62, hy - hs * .58, hs * 1.24, hs * 1.16, 14); g.fill();
-  g.fillStyle = "#7e2440"; heartPath(g, hx, hy + hs * .04, hs * .9); g.fill();
-  g.fillStyle = "#7e2440"; g.textAlign = "center";
+  g.fillStyle = "#b0123c"; heartPath(g, hx, hy + hs * .04, hs * .9); g.fill();
+  g.fillStyle = "#fffafb"; g.textAlign = "center";
   g.font = "italic 500 58px 'Cormorant Garamond', Georgia, serif"; g.fillText("Scanne-moi ♥", W / 2, 76);
   g.font = "italic 500 36px 'Cormorant Garamond', Georgia, serif"; g.fillText("Une surprise t'attend…", W / 2, oy + size + 100);
-  g.fillStyle = "#8a7275"; g.font = "400 24px Jost, 'Segoe UI', sans-serif"; g.fillText("Ouvre l'appareil photo et vise le code", W / 2, oy + size + 146);
+  g.fillStyle = "#fffafb"; g.font = "400 24px Jost, 'Segoe UI', sans-serif"; g.fillText("Ouvre l'appareil photo et vise le code", W / 2, oy + size + 146);
   return c;
 }
 function roundRect(g, x, y, w, h, r) {
