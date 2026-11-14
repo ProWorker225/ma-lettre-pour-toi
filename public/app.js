@@ -484,7 +484,23 @@ async function activate() {
   }[data] || "L'activation a échoué. Réessaie.";
 }
 $("activateForm").addEventListener("submit", e => { e.preventDefault(); activate(); });
-$("actLogout").addEventListener("click", () => sb.auth.signOut());
+/* Déconnexion fiable : sur téléphone, signOut() peut rester bloqué (onglet mis en veille, jeton expiré,
+   réseau coupé). On attend 4 s au plus ; en cas d'échec, on efface la session enregistrée dans le navigateur. */
+async function safeSignOut() {
+  let res;
+  try {
+    res = await Promise.race([sb.auth.signOut(), new Promise(r => setTimeout(() => r({ error: "timeout" }), 4000))]);
+  } catch (e) { res = { error: e }; }
+  if (res && res.error) {
+    try { Object.keys(localStorage).filter(k => k.startsWith("sb-")).forEach(k => localStorage.removeItem(k)); } catch {}
+  }
+}
+async function logout(e) {
+  if (e && e.currentTarget) { e.currentTarget.disabled = true; e.currentTarget.textContent = "Déconnexion…"; }
+  await safeSignOut();
+  location.replace(location.pathname + "?connexion");   // repart d'une page propre, sur l'écran de connexion
+}
+$("actLogout").addEventListener("click", logout);
 $("forgotBtn").addEventListener("click", async () => {
   const email = $("a-email").value.trim();
   if (!email) { $("authMsg").textContent = "Écris d'abord ton e-mail, puis clique sur « Mot de passe oublié »."; return; }
@@ -497,7 +513,7 @@ $("resetForm").addEventListener("submit", async e => {
   if (error) { $("resetMsg").textContent = authError(error); return; }
   recovering = false; route();
 });
-$("logoutBtn").addEventListener("click", () => sb.auth.signOut());
+$("logoutBtn").addEventListener("click", logout);
 
 /* ----- effacer des photos du stockage ----- */
 // Renvoie true si tout a été effacé. Une erreur est signalée ; le propriétaire pourra nettoyer plus tard.
@@ -646,7 +662,8 @@ $("delAccountBtn").addEventListener("click", async () => {
     if (paths.length && !(await removePhotos(paths))) throw new Error("photos");
     const { error } = await sb.rpc("delete_my_account");
     if (error) throw error;
-    await sb.auth.signOut();
+    await safeSignOut();
+    me = null; setAuthMode(false); show("v-auth");
     // après le retour à l'écran de connexion (qui efface les messages)
     setTimeout(() => { $("authMsg").textContent = "Ton compte et toutes tes données ont été supprimés."; }, 100);
   } catch {
