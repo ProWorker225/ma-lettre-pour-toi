@@ -487,7 +487,7 @@ a.pill { text-decoration: none; }
 .tabs .pill:not(.solid):hover { background: #fbe3ea; }
 
 /* écran du code */
-.photo { background: linear-gradient(135deg, #f7c6d4, #e9a2b9); color: #fffafb; }
+.photo { background-image: linear-gradient(135deg, #f7c6d4, #e9a2b9); color: #fffafb; }
 .lips { color: #b0123c; opacity: 1; }
 .code { background: #fbe3ea; border: 2px solid #c9567d; color: #c9567d; }
 .dot { border: 2px solid #c9567d; }
