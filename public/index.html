@@ -5,19 +5,71 @@
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="referrer" content="no-referrer">
 <title>Ma lettre pour toi</title>
-<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 22'%3E%3Cpath fill='%23b0123c' d='M12 21C5 16 0 12 0 6.5 0 3 2.7 0 6.2 0 8.6 0 10.6 1.3 12 3.3 13.4 1.3 15.4 0 17.8 0 21.3 0 24 3 24 6.5 24 12 19 16 12 21Z'/%3E%3C/svg%3E">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 22'%3E%3Cpath fill='%237e2440' d='M12 21C5 16 0 12 0 6.5 0 3 2.7 0 6.2 0 8.6 0 10.6 1.3 12 3.3 13.4 1.3 15.4 0 17.8 0 21.3 0 24 3 24 6.5 24 12 19 16 12 21Z'/%3E%3C/svg%3E">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600&family=Nunito:ital,wght@0,400;0,600;0,700;1,400&family=Caveat:wght@500&family=Noto+Emoji:wght@500&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;1,500&family=Jost:wght@300;400;500&family=Pinyon+Script&family=Noto+Emoji:wght@500&display=swap">
 <link rel="stylesheet" href="style.css">
 </head>
 <body>
 <div class="crosses" id="crosses" aria-hidden="true"></div>
 
+<!-- ============ Vitrine (accueil public) ============ -->
+<div class="view home" id="v-home" hidden>
+  <header class="home-top">
+    <span class="brand">Ma lettre pour toi <span aria-hidden="true">♥</span></span>
+    <a class="linkbtn" href="?connexion">Se connecter</a>
+  </header>
+
+  <section class="hero">
+    <div class="hero-text">
+      <p class="kicker">Projet personnel · Application web</p>
+      <h1>Une lettre d'amour secrète,<br><em>cachée derrière un code.</em></h1>
+      <p class="lead">Prépare une surprise avec tes photos, un mot doux et le nombre de jours passés ensemble. Envoie le lien : la personne doit trouver le code à 6 chiffres, grâce à ton indice, pour l'ouvrir.</p>
+      <div class="hero-cta">
+        <a class="pill solid big" href="?demo">♥ Voir la démo</a>
+        <a class="pill big" href="?essai">Essayer sans compte</a>
+      </div>
+      <p class="hero-note">Aucune inscription. La démo s'ouvre avec le code <b>140226</b>.</p>
+    </div>
+    <div class="hero-art" aria-hidden="true">
+      <div class="ha-envelope"><span class="ha-flap"></span><span class="ha-seal">♥</span></div>
+      <div class="ha-polaroid p1"><img src="demo/1.svg" alt=""><span>Notre coucher de soleil</span></div>
+      <div class="ha-polaroid p2"><img src="demo/3.svg" alt=""><span>Nos dimanches</span></div>
+      <div class="ha-code"><i class="on"></i><i class="on"></i><i class="on"></i><i></i><i></i><i></i></div>
+    </div>
+  </section>
+
+  <section class="home-sec">
+    <h2>Comment ça marche</h2>
+    <ol class="steps">
+      <li><b>1</b><h3>Je prépare</h3><p>J'ajoute mes photos avec une légende, j'écris la lettre, je choisis un code à 6 chiffres et un indice.</p></li>
+      <li><b>2</b><h3>J'envoie</h3><p>Chaque surprise a son propre lien, et une carte QR à imprimer ou glisser dans un cadeau.</p></li>
+      <li><b>3</b><h3>Elle découvre</h3><p>Elle trouve le code, puis découvre le profil, les jours passés ensemble, la lettre et les souvenirs en Polaroid.</p></li>
+    </ol>
+  </section>
+
+  <section class="home-sec">
+    <h2>Sous le capot</h2>
+    <div class="tech">
+      <div><h3>Interface</h3><p>HTML, CSS et JavaScript, sans framework. Pensée mobile d'abord, animations légères, émojis redessinés à l'encre.</p></div>
+      <div><h3>Back-end Supabase</h3><p>Authentification, base PostgreSQL protégée par des règles RLS, stockage privé des photos et une Edge Function qui vérifie le code côté serveur.</p></div>
+      <div><h3>Sécurité</h3><p>Photos servies par des liens temporaires signés, pause automatique après trop d'essais, en-têtes CSP stricts. La personne qui reçoit le lien n'a jamais accès à la base.</p></div>
+      <div><h3>Gestion des comptes</h3><p>Inscription sur code d'activation, espace propriétaire pour générer les codes, suivre les clients et nettoyer les photos inutilisées.</p></div>
+    </div>
+    <ul class="stack"><li>JavaScript</li><li>CSS</li><li>Supabase</li><li>PostgreSQL · RLS</li><li>Edge Functions (Deno)</li><li>Vercel</li></ul>
+  </section>
+
+  <footer class="home-foot">
+    <p>Conçu et développé par <b>Yann Zougouri</b>, développeur web et mobile.</p>
+    <a class="linkbtn" href="https://portfolioyannzougouri.vercel.app" rel="noopener">Voir mon portfolio →</a>
+  </footer>
+</div>
+
 <!-- ============ Configuration manquante ============ -->
 <div class="view page" id="v-config" hidden>
   <div class="window">
-    <div class="titlebar"><span>♥ installation.exe</span></div>
+    <div class="titlebar"><span>Installation</span></div>
     <div class="panel">
       <div class="notice">Le site n'est pas encore relié à Supabase. Ouvre <code>config.js</code> et remplace les deux valeurs par celles de ton projet (voir <code>LISEZMOI.md</code>).</div>
     </div>
@@ -27,7 +79,7 @@
 <!-- ============ Connexion admin ============ -->
 <div class="view page" id="v-auth" hidden>
   <div class="window">
-    <div class="titlebar"><span>♥ connexion.exe</span></div>
+    <div class="titlebar"><span>Connexion</span></div>
     <form class="panel" id="authForm">
       <p class="intro">Connecte-toi pour préparer tes surprises. Pour créer un compte, il te faut un code d'activation. La personne qui reçoit ton lien, elle, n'a pas besoin de compte.</p>
       <div class="tabs">
@@ -49,7 +101,7 @@
 <!-- ============ Activation du compte ============ -->
 <div class="view page" id="v-activate" hidden>
   <div class="window">
-    <div class="titlebar"><span>♥ activation.exe</span></div>
+    <div class="titlebar"><span>Activation</span></div>
     <form class="panel" id="activateForm">
       <div class="who"><span id="actEmail"></span><button type="button" class="pill" id="actLogout">Se déconnecter</button></div>
       <p class="intro" id="actIntro">Ton compte est créé, il reste à l'activer. Entre le code d'activation qu'on t'a donné.</p>
@@ -65,7 +117,7 @@
 <!-- ============ Espace propriétaire ============ -->
 <div class="view page" id="v-owner" hidden>
   <div class="window">
-    <div class="titlebar"><span>♥ proprietaire.exe</span><button class="xbtn" id="ownerClose" type="button" aria-label="Retour à mes surprises">×</button></div>
+    <div class="titlebar"><span>Espace propriétaire</span><button class="xbtn" id="ownerClose" type="button" aria-label="Retour à mes surprises">×</button></div>
     <div class="panel">
       <h2>CODES D'ACTIVATION</h2>
       <form class="gen" id="genForm">
@@ -102,7 +154,7 @@
 <!-- ============ Nouveau mot de passe ============ -->
 <div class="view page" id="v-reset" hidden>
   <div class="window">
-    <div class="titlebar"><span>♥ nouveau-mot-de-passe.exe</span></div>
+    <div class="titlebar"><span>Nouveau mot de passe</span></div>
     <form class="panel" id="resetForm">
       <input type="email" id="r-user" autocomplete="username" hidden>
       <label class="field"><span>Nouveau mot de passe</span><input type="password" id="r-pass" autocomplete="new-password" minlength="8" required><small>8 caractères minimum.</small></label>
@@ -117,7 +169,7 @@
 <!-- ============ Mes surprises ============ -->
 <div class="view page" id="v-dash" hidden>
   <div class="window">
-    <div class="titlebar"><span>♥ mes-surprises.exe</span></div>
+    <div class="titlebar"><span>Mes surprises</span></div>
     <div class="panel">
       <div class="who"><span id="whoEmail"></span><span class="who-btns"><button type="button" class="pill solid" id="ownerBtn" hidden>★ Propriétaire</button><button type="button" class="pill" id="logoutBtn">Se déconnecter</button></span></div>
       <p class="intro">Chaque surprise a son propre lien. La personne qui l'ouvre ne voit que la sienne, après avoir tapé le code.</p>
@@ -137,9 +189,10 @@
 <!-- ============ Réglages d'une surprise ============ -->
 <div class="view page" id="v-form" hidden>
   <div class="window">
-    <div class="titlebar"><span>♥ réglages.exe</span><button class="xbtn" id="formClose" type="button" aria-label="Retour à mes surprises">×</button></div>
+    <div class="titlebar"><span>Ta surprise</span><button class="xbtn" id="formClose" type="button" aria-label="Retour à mes surprises">×</button></div>
     <form class="panel" id="form">
       <p class="intro">Remplis la surprise. Quand tu enregistres, elle reçoit son propre lien à envoyer.</p>
+      <p class="notice trial-note" id="trialNote" hidden>Mode essai : rien n'est envoyé ni enregistré. Tes photos restent dans ton navigateur. Remplis le formulaire puis clique sur « Voir l'aperçu ».</p>
       <label class="field"><span>Pour qui ?</span><input type="text" id="f-name" maxlength="40" required placeholder="Son prénom"><small>Pour t'y retrouver dans ta liste. Le prénom n'apparaît pas dans le lien.</small></label>
       <div class="field">
         <span>Photos</span>
@@ -166,8 +219,12 @@
 
 <!-- ============ La surprise (ce que voit la personne) ============ -->
 <div class="view wrap" id="v-surprise" hidden>
+  <div class="demo-bar" id="demoBar" hidden>
+    <span id="demoText"></span>
+    <a class="pill" id="demoBack" href="./">← Retour</a>
+  </div>
   <div class="window">
-    <div class="titlebar"><span>♥ pour-toi.exe</span><button class="xbtn" id="lockBtn" type="button" aria-label="Verrouiller">×</button></div>
+    <div class="titlebar"><span>Pour toi</span><button class="xbtn" id="lockBtn" type="button" aria-label="Verrouiller">×</button></div>
     <div class="panel">
 
       <section class="screen" id="s-lock">
@@ -240,7 +297,7 @@
         <button class="pill" type="button" data-go="s-mem">▣ Our Memories</button>
       </nav>
     </div>
-    <div class="caption">( Fait avec amour )</div>
+    <div class="caption">Fait avec amour</div>
   </div>
 </div>
 

@@ -32,6 +32,7 @@ const signedCache = new Map();   // chemin dans le stockage -> lien temporaire (
 function photoUrl(p) {
   if (!p) return "";
   if (/^(blob:|data:)/.test(p)) return p;
+  if (/^demo\/[0-9]+\.svg$/.test(p)) return p;   // illustrations de la démo, servies par le site
   if (SIGNED_PREFIX && p.startsWith(SIGNED_PREFIX)) return p;   // lien déjà signé (surprise ouverte)
   return signedCache.get(p) || "";
 }
@@ -254,6 +255,15 @@ async function press(k) {
   else if (entry.length < CODE_LEN) entry += k;
   drawCode();
   if (entry.length !== CODE_LEN) return;
+  if (local) {   // démo ou aperçu d'essai : tout se passe dans le navigateur
+    if (entry === local.code) {
+      S = Object.assign({ photos: [], legendes: [], texte: [] }, local.data);
+      unlocked = true; entry = ""; $("codeMsg").textContent = ""; renderUnlocked();
+      return setTimeout(() => go("s-profile"), 200);
+    }
+    wrongCode(); $("codeMsg").textContent = "Code incorrect. Regarde l'indice ♥";
+    return;
+  }
   checking = true;
   const data = await callSurprise({ action: "open", slug, code: entry });
   checking = false;
@@ -288,6 +298,37 @@ addEventListener("keydown", e => {
   if (document.querySelector(".key:disabled")) return;
   if (/^[0-9]$/.test(e.key)) press(e.key); else if (e.key === "Backspace") press("⌫");
 });
+
+/* ----- démo publique et aperçu d'essai : sans compte, sans serveur ----- */
+let local = null;   // { code, data } quand la surprise est ouverte en local
+const DEMO = {
+  code: "140226",
+  data: {
+    indice: "Le jour de notre premier rendez-vous (JJMMAA)",
+    debut: "2026-02-14",
+    statut: "Coucou toi, tu souris déjà ? ♥",
+    titre: "Pour toi, mon cœur",
+    texte: ["Si tu lis ça, c'est que tu as trouvé le code. Je savais que tu t'en souviendrais.",
+            "Merci pour chaque fou rire, chaque message du soir et chaque moment où tu m'as fait me sentir chez moi.",
+            "Je t'aime plus que ce petit écran ne peut le contenir."],
+    signature: "— Moi ♥",
+    photos: ["demo/1.svg", "demo/2.svg", "demo/3.svg", "demo/4.svg"],
+    legendes: ["Notre coucher de soleil", "Rien que pour toi", "Nos dimanches", "Sous les étoiles"]
+  }
+};
+function openLocal(surprise, bannerText, onBack) {
+  local = surprise; S = null; unlocked = false; entry = "";
+  show("v-surprise");
+  closeLetter(); resetHint(); clearInterval(lockTimer);
+  document.querySelectorAll(".key").forEach(k => k.disabled = false);
+  lockIndice = surprise.data.indice || ""; CODE_LEN = 6;
+  const p = surprise.data.photos || [];
+  renderLockPhotos(p.length ? [p[2] || p[0]] : []);
+  $("codeMsg").textContent = ""; $("hintBtn").hidden = !lockIndice;
+  $("demoBar").hidden = false; $("demoText").textContent = bannerText;
+  $("demoBack").onclick = onBack ? e => { e.preventDefault(); onBack(); } : null;
+  lockReady = true; drawCode(); go("s-lock");
+}
 
 async function openRecipient(s) {
   slug = s; show("v-surprise");
@@ -576,27 +617,27 @@ $("delAccountBtn").addEventListener("click", async () => {
   }
 });
 
-/* ----- QR code : une petite carte rose à imprimer ou envoyer ----- */
+/* ----- QR code : une petite carte blanche à imprimer ou envoyer ----- */
 function drawQrCard(url) {
   const qr = qrcode(0, "H"); qr.addData(url); qr.make();
   const n = qr.getModuleCount(), cell = Math.floor(560 / n), size = cell * n;
   const W = size + 160, H = size + 300;
   const c = document.createElement("canvas"); c.width = W; c.height = H;
   const g = c.getContext("2d");
-  g.fillStyle = "#e07a9c"; g.fillRect(0, 0, W, H);                                 // carte rose
+  g.fillStyle = "#ffffff"; g.fillRect(0, 0, W, H);                                 // carte blanche
   const ox = 80, oy = 120;
-  g.fillStyle = "#fffafb"; roundRect(g, ox - 30, oy - 30, size + 60, size + 60, 28); g.fill();
-  g.fillStyle = "#b0123c";
+  g.fillStyle = "#f7f6f6"; roundRect(g, ox - 30, oy - 30, size + 60, size + 60, 28); g.fill();
+  g.fillStyle = "#7e2440";
   for (let r = 0; r < n; r++) for (let col = 0; col < n; col++)
     if (qr.isDark(r, col)) g.fillRect(ox + col * cell, oy + r * cell, cell, cell);
   // cœur au centre (le QR reste lisible grâce à la correction d'erreur "H")
   const hs = size * 0.2, hx = ox + size / 2, hy = oy + size / 2;
-  g.fillStyle = "#fffafb"; roundRect(g, hx - hs * .62, hy - hs * .58, hs * 1.24, hs * 1.16, 14); g.fill();
-  g.fillStyle = "#b0123c"; heartPath(g, hx, hy + hs * .04, hs * .9); g.fill();
-  g.fillStyle = "#fffafb"; g.textAlign = "center";
-  g.font = "600 46px Fredoka, 'Trebuchet MS', sans-serif"; g.fillText("Scanne-moi ♥", W / 2, 76);
-  g.font = "600 30px Nunito, 'Segoe UI', sans-serif"; g.fillText("Une surprise t'attend…", W / 2, oy + size + 100);
-  g.font = "26px Nunito, 'Segoe UI', sans-serif"; g.fillText("Ouvre l'appareil photo et vise le code", W / 2, oy + size + 146);
+  g.fillStyle = "#fffdf9"; roundRect(g, hx - hs * .62, hy - hs * .58, hs * 1.24, hs * 1.16, 14); g.fill();
+  g.fillStyle = "#7e2440"; heartPath(g, hx, hy + hs * .04, hs * .9); g.fill();
+  g.fillStyle = "#7e2440"; g.textAlign = "center";
+  g.font = "italic 500 58px 'Cormorant Garamond', Georgia, serif"; g.fillText("Scanne-moi ♥", W / 2, 76);
+  g.font = "italic 500 36px 'Cormorant Garamond', Georgia, serif"; g.fillText("Une surprise t'attend…", W / 2, oy + size + 100);
+  g.fillStyle = "#8a7275"; g.font = "400 24px Jost, 'Segoe UI', sans-serif"; g.fillText("Ouvre l'appareil photo et vise le code", W / 2, oy + size + 146);
   return c;
 }
 function roundRect(g, x, y, w, h, r) {
@@ -648,6 +689,17 @@ const DEFAULTS = {
 let editing = null;   // ligne en cours de modification (null = nouvelle)
 let draft = [];       // [{ path }] photo déjà en ligne, ou [{ blob, url }] nouvelle photo
 
+let trial = false;   // formulaire « Essayer sans compte » : rien n'est envoyé
+function openTrial() {
+  trial = true;
+  $("trialNote").hidden = false;
+  $("trialNote").previousElementSibling.hidden = true;   // la phrase « elle reçoit son propre lien » ne vaut pas pour l'essai
+  $("saveBtn").textContent = "♥ Voir l'aperçu";
+  $("backBtn").textContent = "← Accueil";
+  openForm(null);
+}
+const leaveForm = () => trial ? (location.href = "./") : openDash();
+
 async function openForm(s) {
   editing = s;
   const c = s || DEFAULTS;
@@ -660,8 +712,8 @@ async function openForm(s) {
   await signPaths(c.photos);
   drawThumbs(); show("v-form");
 }
-$("backBtn").addEventListener("click", () => openDash());
-$("formClose").addEventListener("click", () => openDash());
+$("backBtn").addEventListener("click", leaveForm);
+$("formClose").addEventListener("click", leaveForm);
 
 const LABELS = ["bannière", "profil", "cœur"];
 function drawThumbs() {
@@ -753,6 +805,13 @@ $("form").addEventListener("submit", async e => {
   if (!row.nom) { $("formMsg").textContent = "Indique pour qui est la surprise."; return; }
   if (!/^[0-9]{6}$/.test(row.code)) { $("formMsg").textContent = "Le code doit faire exactement 6 chiffres."; return; }
   if (!row.debut) { $("formMsg").textContent = "Indique le jour où vous êtes ensemble."; return; }
+  if (trial) {   // aperçu local : les photos restent dans le navigateur
+    $("formMsg").textContent = "";
+    row.photos = draft.map(d => d.url || photoUrl(d.path)).filter(Boolean);
+    row.legendes = draft.map(d => (d.cap || "").trim());
+    openLocal({ code: row.code, data: row }, `Aperçu de ta surprise · ton code : ${row.code}`, () => show("v-form"));
+    return;
+  }
 
   $("saveBtn").disabled = true;
   try {
@@ -932,8 +991,11 @@ $("ownerBack").addEventListener("click", () => openDash());
    DÉMARRAGE
    ===================================================================== */
 (async () => {
-  if (!sb) return show("v-config");
-  const s = new URLSearchParams(location.search).get("s");
+  const params = new URLSearchParams(location.search);
+  if (params.has("demo")) return openLocal(DEMO, "Démo · le code est 140226");
+  if (params.has("essai")) return openTrial();
+  const s = params.get("s");
+  if (!sb) return show(s || params.has("connexion") ? "v-config" : "v-home");
   if (s) return openRecipient(s);
 
   sb.auth.onAuthStateChange((event, session) => {
@@ -946,5 +1008,7 @@ $("ownerBack").addEventListener("click", () => openDash());
   const { data } = await sb.auth.getSession();
   if (recovering) return;
   me = data.session ? data.session.user : null;
-  if (me) route(); else { setAuthMode(false); show("v-auth"); }
+  if (me) route();
+  else if (params.has("connexion")) { setAuthMode(false); show("v-auth"); }
+  else show("v-home");
 })();
