@@ -193,7 +193,14 @@
       <div class="who"><span id="whoEmail"></span><span class="who-btns"><button type="button" class="pill solid" id="ownerBtn" hidden>★ Propriétaire</button><button type="button" class="pill" id="logoutBtn">Se déconnecter</button></span></div>
       <div class="dash-stats" id="dashStats"></div>
       <p class="intro">Chaque surprise a son propre lien. La personne qui l'ouvre ne voit que la sienne, après avoir tapé le code.</p>
-      <div class="list" id="list"></div>
+      <div class="lists">
+        <div class="list" id="list"></div>
+        <details class="trash" id="trash" hidden>
+          <summary id="trashSum">Corbeille</summary>
+          <p class="trash-note">Les surprises supprimées restent ici 30 jours, puis sont effacées avec leurs photos.</p>
+          <div class="trash-list" id="trashList"></div>
+        </details>
+      </div>
       <div class="actions">
         <span class="msg" id="dashMsg" role="status"></span>
         <button type="button" class="pill solid" id="newBtn">+ Nouvelle surprise</button>

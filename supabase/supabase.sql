@@ -467,3 +467,93 @@ select case
     then 'OK : schéma à jour, propriétaire configuré.'
   else 'ATTENTION : aucun propriétaire. Crée ton compte (Authentication > Users > Add user, Auto Confirm), colle son User UID tout en haut de ce fichier, puis relance-le.'
 end as resultat;
+
+-- =========================================================================
+-- Corbeille (ajout du 14/11/2026)
+--   « Supprimer » remplit deleted_at au lieu d'effacer : la surprise reste
+--   30 jours dans la corbeille (restaurable), puis le site l'efface avec ses
+--   photos. Une surprise dans la corbeille ne s'ouvre plus par son lien.
+--   Cette section remplace les fonctions définies plus haut.
+-- =========================================================================
+alter table public.surprises add column if not exists deleted_at timestamptz;
+
+create or replace function public.surprise_preview(p_slug text)
+returns json language plpgsql stable security definer set search_path = public as $$
+declare s surprises; lk timestamptz;
+begin
+  select * into s from surprises where slug = p_slug;
+  if not found or s.deleted_at is not null or not public.surprise_owner_active(s.owner) then
+    return json_build_object('status', 'not_found');
+  end if;
+  select locked_until into lk from unlock_attempts where slug = p_slug;
+  return json_build_object(
+    'status', 'ok',
+    'indice', s.indice,
+    'longueur', char_length(s.code),
+    'photo', case when cardinality(s.photos) >= 3 then s.photos[3] end,
+    'locked_for', greatest(0, ceil(extract(epoch from (coalesce(lk, now()) - now()))))::int
+  );
+end $$;
+
+create or replace function public.open_surprise(p_slug text, p_code text)
+returns json language plpgsql volatile security definer set search_path = public as $$
+declare
+  s surprises;
+  a unlock_attempts;
+  pause interval;
+begin
+  select * into s from surprises where slug = p_slug;
+  if not found or s.deleted_at is not null or not public.surprise_owner_active(s.owner) then
+    return json_build_object('status', 'not_found');
+  end if;
+
+  insert into unlock_attempts (slug) values (p_slug) on conflict (slug) do nothing;
+  select * into a from unlock_attempts where slug = p_slug for update;
+
+  if a.locked_until is not null and a.locked_until > now() then
+    return json_build_object('status', 'locked',
+      'retry_after', ceil(extract(epoch from (a.locked_until - now())))::int);
+  end if;
+
+  if a.locked_until is not null and a.locked_until < now() - interval '24 hours' then
+    a.lock_level := 0;
+  end if;
+
+  if s.code = p_code then
+    update unlock_attempts set failures = 0, window_start = now(), locked_until = null, lock_level = 0
+     where slug = p_slug;
+    return json_build_object(
+      'status', 'ok',
+      'indice', s.indice, 'debut', s.debut, 'statut', s.statut, 'titre', s.titre,
+      'texte', s.texte, 'signature', s.signature, 'legendes', s.legendes, 'photos', s.photos);
+  end if;
+
+  if a.window_start < now() - interval '1 hour' then
+    a.failures := 0; a.window_start := now();
+  end if;
+  a.failures := a.failures + 1;
+
+  if a.failures >= 5 then
+    pause := case when a.lock_level = 0 then interval '15 minutes'
+                  when a.lock_level = 1 then interval '1 hour'
+                  else interval '24 hours' end;
+    update unlock_attempts
+       set failures = 0, window_start = now(), locked_until = now() + pause, lock_level = least(a.lock_level + 1, 2)
+     where slug = p_slug;
+    return json_build_object('status', 'locked', 'retry_after', extract(epoch from pause)::int);
+  end if;
+
+  update unlock_attempts set failures = a.failures, window_start = a.window_start, lock_level = a.lock_level
+   where slug = p_slug;
+  return json_build_object('status', 'wrong', 'remaining', 5 - a.failures);
+end $$;
+
+create or replace function public.surprises_limit() returns trigger
+language plpgsql security definer set search_path = public as $$
+begin
+  if not exists (select 1 from app_owners where user_id = new.owner)
+     and (select count(*) from surprises where owner = new.owner and deleted_at is null) >= 50 then
+    raise exception 'Limite atteinte : 50 surprises maximum par compte.';
+  end if;
+  return new;
+end $$;

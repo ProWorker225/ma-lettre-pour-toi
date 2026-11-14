@@ -373,7 +373,8 @@ async function openRecipient(s) {
 /* =====================================================================
    ESPACE ADMIN
    ===================================================================== */
-let me = null, mine = [], recovering = false;
+let me = null, mine = [], trash = [], recovering = false;
+const TRASH_DAYS = 30;   // une surprise supprimée reste 30 jours dans la corbeille
 const PW_MIN = 8;
 
 /* ----- connexion ----- */
@@ -544,9 +545,57 @@ async function openDash(msg) {
     const st = await sb.rpc("my_status");
     if (st.data && !st.data.member) return openActivate(st.data.inactive);
   }
-  mine = data;
-  await signPaths(mine.map(s => s.photos[1] || s.photos[0]));
+  // Corbeille : au-delà de 30 jours, la surprise et ses photos sont effacées pour de bon.
+  const limit = Date.now() - TRASH_DAYS * 864e5;
+  const expired = data.filter(s => s.deleted_at && new Date(s.deleted_at).getTime() < limit);
+  mine = data.filter(s => !s.deleted_at);
+  trash = data.filter(s => s.deleted_at && !expired.includes(s));
+  await signPaths(mine.concat(trash).map(s => s.photos[1] || s.photos[0]));
   drawList(); $("dashMsg").textContent = msg || "";
+  for (const s of expired) {
+    const { error } = await sb.from("surprises").delete().eq("id", s.id);
+    if (!error && s.photos.length) await removePhotos(s.photos);
+  }
+}
+
+const fmtDay = d => new Date(d).toLocaleDateString("fr-FR", { day: "numeric", month: "long" });
+function drawTrash() {
+  const box = $("trash"), list = $("trashList");
+  box.hidden = !trash.length; list.innerHTML = "";
+  $("trashSum").textContent = `Corbeille (${trash.length})`;
+  trash.forEach(s => {
+    const row = document.createElement("div"); row.className = "trash-item";
+    const pic = document.createElement("div"); pic.className = "pic photo";
+    const src = photoUrl(s.photos[1] || s.photos[0]);
+    if (src) { pic.style.backgroundImage = `url("${src}")`; pic.classList.add("has-img"); } else pic.textContent = "♥";
+    const main = document.createElement("div"); main.className = "trash-main";
+    const name = document.createElement("div"); name.className = "item-name"; name.textContent = s.nom;
+    const end = new Date(new Date(s.deleted_at).getTime() + TRASH_DAYS * 864e5);
+    const meta = document.createElement("div"); meta.className = "item-meta";
+    meta.textContent = `Supprimée le ${fmtDay(s.deleted_at)} · effacée pour de bon le ${fmtDay(end)}. Son lien ne s'ouvre plus.`;
+    const acts = document.createElement("div"); acts.className = "item-actions";
+    const back = document.createElement("button"); back.type = "button"; back.className = "pill solid"; back.textContent = "↺ Restaurer";
+    back.onclick = async () => {
+      back.disabled = true;
+      const { error } = await sb.from("surprises").update({ deleted_at: null }).eq("id", s.id);
+      if (error) { back.disabled = false; $("dashMsg").textContent = "La restauration a échoué. Réessaie."; return; }
+      s.deleted_at = null; trash = trash.filter(x => x.id !== s.id); mine.unshift(s);
+      mine.sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
+      drawList(s.id);
+      $("dashMsg").textContent = `Surprise pour ${s.nom} restaurée : son lien et son QR code marchent de nouveau.`;
+    };
+    const kill = armedButton("Supprimer définitivement", "Effacer pour de bon ? (irréversible)", "danger", async () => {
+      const { error } = await sb.from("surprises").delete().eq("id", s.id);
+      if (error) { $("dashMsg").textContent = "La suppression a échoué. Réessaie."; return; }
+      const gone = s.photos.length ? await removePhotos(s.photos) : true;
+      trash = trash.filter(x => x.id !== s.id); drawList();
+      $("dashMsg").textContent = gone ? `Surprise pour ${s.nom} effacée définitivement.`
+        : `Surprise pour ${s.nom} effacée. Ses photos seront retirées au prochain nettoyage.`;
+    });
+    acts.append(back, kill);
+    main.append(name, meta, acts);
+    row.append(pic, main); list.appendChild(row);
+  });
 }
 function drawStats() {
   const box = $("dashStats"); box.innerHTML = "";
@@ -565,11 +614,12 @@ function drawStats() {
   }
 }
 function drawList(freshId) {
-  drawStats();
+  drawStats(); drawTrash();
   const list = $("list"); list.innerHTML = "";
   if (!mine.length) {
     const e = document.createElement("div"); e.className = "empty";
-    e.textContent = "Aucune surprise pour l'instant. Crée la première avec le bouton ci-dessous.";
+    e.textContent = trash.length ? "Aucune surprise active. Tu peux en restaurer une depuis la corbeille, ou en créer une nouvelle."
+      : "Aucune surprise pour l'instant. Crée la première avec le bouton ci-dessous.";
     list.appendChild(e); return;
   }
   mine.forEach(s => {
@@ -609,17 +659,16 @@ function drawList(freshId) {
     const del = document.createElement("button"); del.type = "button"; del.className = "pill danger"; del.textContent = "Supprimer";
     del.onclick = async () => {
       if (!del.dataset.armed) {
-        del.dataset.armed = "1"; del.textContent = "Confirmer la suppression";
+        del.dataset.armed = "1"; del.textContent = "Mettre à la corbeille ?";
         setTimeout(() => { delete del.dataset.armed; del.textContent = "Supprimer"; }, 4000); return;
       }
+      // Plus de suppression immédiate : la surprise part dans la corbeille pendant 30 jours.
       del.disabled = true;
-      const { error } = await sb.from("surprises").delete().eq("id", s.id);
+      const when = new Date().toISOString();
+      const { error } = await sb.from("surprises").update({ deleted_at: when }).eq("id", s.id);
       if (error) { del.disabled = false; $("dashMsg").textContent = "La suppression a échoué. Réessaie."; return; }
-      const gone = s.photos.length ? await removePhotos(s.photos) : true;
-      mine = mine.filter(x => x.id !== s.id); drawList();
-      $("dashMsg").textContent = gone
-        ? `Surprise pour ${s.nom} supprimée.`
-        : `Surprise pour ${s.nom} supprimée, mais ses photos n'ont pas pu être effacées du stockage. Elles seront retirées lors du prochain nettoyage.`;
+      s.deleted_at = when; mine = mine.filter(x => x.id !== s.id); trash.unshift(s); drawList();
+      $("dashMsg").textContent = `Surprise pour ${s.nom} mise à la corbeille. Tu peux la restaurer depuis la corbeille pendant ${TRASH_DAYS} jours.`;
     };
     const qrBtn = document.createElement("button"); qrBtn.type = "button"; qrBtn.className = "pill"; qrBtn.textContent = "▦ QR code";
     const qrBox = document.createElement("div"); qrBox.className = "qrbox"; qrBox.hidden = true;

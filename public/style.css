@@ -610,7 +610,8 @@ a.pill { text-decoration: none; }
   #v-dash .dash-stats .stat { background: #fbe3ea; border-radius: 14px; padding: 14px 6px; }
   .dash-last { grid-column: 1 / -1; margin: 0; font-size: 13px; color: #fffafb; line-height: 1.5; }
   #v-dash .intro { grid-area: intro; text-align: left; align-self: center; }
-  #v-dash .list { grid-area: list; display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 18px; }
+  #v-dash .lists { grid-area: list; min-width: 0; }
+  #v-dash .list { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 18px; }
   #v-dash .list .empty { grid-column: 1 / -1; }
   #v-dash .actions { grid-area: actions; justify-content: stretch; }
   #v-dash .actions #newBtn { width: 100%; padding: 13px; }
@@ -685,4 +686,27 @@ a.pill { text-decoration: none; }
 }
 @media (min-width: 1000px) and (prefers-reduced-motion: reduce) {
   .amb-h { display: none; }
+}
+
+/* ---------- Corbeille ---------- */
+.lists { display: flex; flex-direction: column; gap: 18px; }
+.trash { border-top: 1px solid rgba(255, 250, 251, .45); padding-top: 14px; }
+.trash > summary {
+  cursor: pointer; list-style: none; display: inline-flex; align-items: center; gap: 8px;
+  font-size: 12px; font-weight: 600; letter-spacing: .12em; text-transform: uppercase; color: #fffafb;
+}
+.trash > summary::-webkit-details-marker { display: none; }
+.trash > summary::before { content: "▸"; transition: transform .2s; }
+.trash[open] > summary::before { transform: rotate(90deg); }
+.trash-note { margin: 10px 0 12px; font-size: 13px; color: #fff1f5; }
+.trash-list { display: flex; flex-direction: column; gap: 10px; }
+.trash-item {
+  display: grid; grid-template-columns: 48px 1fr; gap: 12px; align-items: start;
+  background: #fbe3ea; border: 2px dashed #c9567d; border-radius: 14px; padding: 12px; opacity: .92;
+}
+.trash-item .pic { width: 48px; height: 48px; border-radius: 50%; border: 2px solid #c9567d; filter: grayscale(.6); }
+.trash-main { display: flex; flex-direction: column; gap: 8px; min-width: 0; }
+.trash-main .item-name { font-size: 19px; }
+@media (min-width: 1000px) {
+  #v-dash .trash-list { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); }
 }
