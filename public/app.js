@@ -151,8 +151,28 @@ function renderLockPhotos(heartPhotos) {
   fillPhoto(h, 0);
   S = keep;
 }
+/* Grand écran : les photos de la surprise, floutées en Polaroids autour du téléphone, et des cœurs qui montent. */
+const AMB_SPOTS = [[3, 6, -8], [17, 34, 6], [4, 60, -3], [15, 78, 9], [80, 5, 7], [70, 30, -6], [82, 55, 4], [68, 76, -9]];
+for (let i = 0; i < 10; i++) {
+  const h = document.createElement("span"); h.className = "amb-h"; h.textContent = "♥";
+  h.style.left = (i < 5 ? 3 + i * 5.5 : 70 + (i - 5) * 5.5) + "%";
+  h.style.animationDelay = (-i * 2.3) + "s"; h.style.fontSize = (12 + (i * 7) % 16) + "px";
+  $("ambient").appendChild(h);
+}
+function fillAmbient(srcs) {
+  $("ambient").querySelectorAll(".amb-p").forEach(el => el.remove());
+  if (!srcs.length) return;
+  AMB_SPOTS.forEach(([x, y, r], i) => {
+    const p = document.createElement("div"); p.className = "amb-p";
+    p.style.left = x + "%"; p.style.top = y + "%"; p.style.setProperty("--r", r + "deg"); p.style.animationDelay = (i * .15) + "s";
+    const img = document.createElement("i"); img.style.backgroundImage = `url("${srcs[i % srcs.length]}")`;
+    p.appendChild(img); $("ambient").appendChild(p);
+  });
+}
+
 function renderUnlocked() {
   document.querySelectorAll("[data-photo]").forEach(el => fillPhoto(el, +el.dataset.photo));
+  fillAmbient((S.photos || []).map(photoUrl).filter(Boolean));
   inkInto($("status"), S.statut);
   const start = S.debut ? new Date(S.debut + "T00:00:00") : null;
   const ok = start && !isNaN(start);
@@ -207,6 +227,7 @@ function relock() {
   unlocked = false; S = null; entry = "";
   closeLetter(); resetHint();
   ["pTitle", "pBody", "pSign", "status", "strip"].forEach(id => $(id).textContent = "");
+  fillAmbient([]);
   $("days").textContent = "0"; $("since").textContent = "—";
   document.querySelectorAll("[data-photo]").forEach(el => {
     el.style.backgroundImage = ""; el.style.setProperty("--img", "none"); el.classList.remove("has-img"); el.textContent = "♥";
@@ -511,7 +532,24 @@ async function openDash(msg) {
   await signPaths(mine.map(s => s.photos[1] || s.photos[0]));
   drawList(); $("dashMsg").textContent = msg || "";
 }
+function drawStats() {
+  const box = $("dashStats"); box.innerHTML = "";
+  const photos = mine.reduce((n, s) => n + s.photos.length, 0);
+  const last = mine.length ? mine.reduce((a, b) => new Date(a.created_at) > new Date(b.created_at) ? a : b) : null;
+  [[mine.length, mine.length > 1 ? "surprises" : "surprise"], [photos, photos > 1 ? "photos" : "photo"]].forEach(([n, label]) => {
+    const d = document.createElement("div"); d.className = "stat";
+    const b = document.createElement("b"); b.textContent = n;
+    const sp = document.createElement("span"); sp.textContent = label;
+    d.append(b, sp); box.appendChild(d);
+  });
+  if (last) {
+    const d = document.createElement("p"); d.className = "dash-last";
+    d.textContent = `Dernière créée : ${last.nom}, le ${new Date(last.created_at).toLocaleDateString("fr-FR")}`;
+    box.appendChild(d);
+  }
+}
 function drawList(freshId) {
+  drawStats();
   const list = $("list"); list.innerHTML = "";
   if (!mine.length) {
     const e = document.createElement("div"); e.className = "empty";
@@ -715,6 +753,41 @@ async function openForm(s) {
 $("backBtn").addEventListener("click", leaveForm);
 $("formClose").addEventListener("click", leaveForm);
 
+/* Aperçu en direct (grand écran) : reprend ce qui est tapé, sans rien enregistrer. */
+function setPv(el, src) {
+  el.style.backgroundImage = src ? `url("${src}")` : "";
+  el.classList.toggle("has-img", !!src);
+  el.textContent = src ? "" : "♥";
+}
+function updatePreview() {
+  const srcs = draft.map(d => d.url || photoUrl(d.path) || "");
+  const pick = i => srcs.length ? srcs[i % srcs.length] : "";
+  setPv($("pvHeart"), pick(2)); setPv($("pvBanner"), pick(0)); setPv($("pvAvatar"), pick(1));
+  const code = $("f-code").value.replace(/\D/g, "");
+  $("pvDots").innerHTML = "";
+  for (let i = 0; i < 6; i++) { const d = document.createElement("span"); d.className = "dot" + (i < code.length ? " full" : ""); $("pvDots").appendChild(d); }
+  const hint = $("f-hint").value.trim();
+  inkInto($("pvHint"), hint ? "Indice : " + hint : "");
+  inkInto($("pvStatus"), $("f-status").value);
+  const start = $("f-date").value ? new Date($("f-date").value + "T00:00:00") : null;
+  const ok = start && !isNaN(start);
+  $("pvDays").textContent = ok ? Math.max(0, Math.floor((Date.now() - start) / 864e5)).toLocaleString("fr-FR") : "—";
+  $("pvSince").textContent = ok ? start.toLocaleDateString("fr-FR", { month: "short", year: "numeric" }) : "—";
+  inkInto($("pvTitle"), $("f-title").value);
+  inkInto($("pvSign"), $("f-sign").value);
+  $("pvBody").innerHTML = "";
+  $("f-text").value.split(/\n\s*\n/).map(t => t.trim()).filter(Boolean)
+    .forEach(t => { const p = document.createElement("p"); inkInto(p, t); $("pvBody").appendChild(p); });
+  $("pvStrip").innerHTML = "";
+  draft.forEach((d, i) => {
+    const pol = document.createElement("div"); pol.className = "pv-pol";
+    const ph = document.createElement("div"); ph.className = "photo"; setPv(ph, srcs[i]);
+    const cap = document.createElement("span"); inkInto(cap, d.cap);
+    pol.append(ph, cap); $("pvStrip").appendChild(pol);
+  });
+}
+$("form").addEventListener("input", updatePreview);
+
 const LABELS = ["bannière", "profil", "cœur"];
 function drawThumbs() {
   const box = $("thumbs"); box.innerHTML = "";
@@ -759,6 +832,7 @@ function drawThumbs() {
     add.innerHTML = '<span>+ Ajouter<br>des photos</span><input type="file" id="f-photos" accept="image/*" multiple>';
     add.querySelector("input").addEventListener("change", onFiles); box.appendChild(add);
   }
+  updatePreview();
 }
 async function shrink(file) {
   const src = URL.createObjectURL(file);

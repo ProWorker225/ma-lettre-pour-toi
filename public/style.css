@@ -267,8 +267,8 @@ a.pill { text-decoration: none; }
 .page textarea { resize: vertical; min-height: 140px; line-height: 1.6; }
 .page #f-text { font: italic 500 18px/1.55 var(--f-hand); }
 .intro { margin: 0; color: var(--muted); font-size: 14px; line-height: 1.6; text-align: center; text-wrap: pretty; }
-.page .panel > h2 { margin-top: 10px; display: flex; align-items: center; gap: 12px; }
-.page .panel > h2::before, .page .panel > h2::after { content: ""; flex: 1; height: 1px; background: var(--line); }
+.page .panel > h2, .ow-sec > h2 { margin-top: 10px; display: flex; align-items: center; gap: 12px; }
+.page .panel > h2::before, .page .panel > h2::after, .ow-sec > h2::before, .ow-sec > h2::after { content: ""; flex: 1; height: 1px; background: var(--line); }
 .field { display: flex; flex-direction: column; gap: 7px; }
 .field > span { font-size: 11px; font-weight: 500; letter-spacing: .14em; text-transform: uppercase; color: var(--muted); }
 .field small { color: var(--muted); font-size: 12px; line-height: 1.45; }
@@ -465,7 +465,7 @@ a.pill { text-decoration: none; }
    COULEURS D'ORIGINE : fenêtres roses, texte crème, éléments clairs bordés de rose foncé
    ===================================================================== */
 /* Dans les panneaux roses, le texte devient crème */
-.window, .steps li, .tech > div, .demo-bar {
+.window, .steps li, .tech > div, .demo-bar, .phone-screen {
   --ink: #fffafb; --muted: #fff1f5; --wine: #fffafb; --gold: #fffafb;
   --line: rgba(255, 250, 251, .45); --rose-deep: #fffafb; --card: #e07a9c;
   background: #e07a9c; border: 2px solid #c9567d; color: #fffafb;
@@ -574,3 +574,115 @@ a.pill { text-decoration: none; }
 .stack li { background: #fbe3ea; border: 0; color: #c9567d; }
 .home-foot b { color: #b0123c; }
 .demo-bar { color: #fffafb; }
+
+
+/* =====================================================================
+   GRAND ÉCRAN (≥ 1000 px) : on utilise toute la largeur
+   Le mobile garde la mise en page en une colonne.
+   ===================================================================== */
+.side-art, .pv, .dash-stats, .ambient { display: none; }
+.ow-sec { display: flex; flex-direction: column; gap: 14px; min-width: 0; }
+
+@media (min-width: 1000px) {
+  /* ---- 3. Connexion : visuel à gauche, formulaire à droite ---- */
+  .page.split {
+    display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 500px); gap: 72px;
+    max-width: 1140px; margin: 0 auto; align-items: center; min-height: 100vh; padding-block: 40px;
+  }
+  .page.split .window { width: 100%; }
+  .side-art { display: flex; flex-direction: column; gap: 18px; }
+  .side-title { margin: 0; font: 500 46px/1.08 var(--f-head); color: #5a2a3c; }
+  .side-title em { color: #b0123c; }
+  .side-visual { max-width: 440px; justify-self: start; margin: 8px 0; }
+  .side-note { margin: 0; color: #7a4a5c; font-size: 14px; }
+  .side-note .linkbtn { color: #c9567d; font-size: 14px; }
+
+  /* ---- 2. Mes surprises : colonne latérale + grille ---- */
+  #v-dash .window { width: min(1160px, 100%); }
+  #v-dash .panel {
+    display: grid; grid-template-columns: 270px minmax(0, 1fr); column-gap: 36px; row-gap: 18px; align-items: start;
+    grid-template-areas: "who intro" "stats list" "actions list" "foot list" "msg list";
+    grid-template-rows: auto auto auto auto 1fr;
+  }
+  #v-dash .who { grid-area: who; flex-direction: column; align-items: flex-start; border-bottom: 0; padding-bottom: 0; }
+  #v-dash .who-btns { flex-direction: column; align-items: stretch; width: 100%; }
+  #v-dash .dash-stats { grid-area: stats; display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+  #v-dash .dash-stats .stat { background: #fbe3ea; border-radius: 14px; padding: 14px 6px; }
+  .dash-last { grid-column: 1 / -1; margin: 0; font-size: 13px; color: #fffafb; line-height: 1.5; }
+  #v-dash .intro { grid-area: intro; text-align: left; align-self: center; }
+  #v-dash .list { grid-area: list; display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 18px; }
+  #v-dash .list .empty { grid-column: 1 / -1; }
+  #v-dash .actions { grid-area: actions; justify-content: stretch; }
+  #v-dash .actions #newBtn { width: 100%; padding: 13px; }
+  #v-dash .foot-links { grid-area: foot; justify-content: flex-start; }
+  #delAccountMsg { grid-area: msg; }
+  #v-dash .item { grid-template-columns: 1fr; padding: 12px; }
+  #v-dash .item .pic { width: 100%; height: auto; aspect-ratio: 16 / 10; border-radius: 12px; }
+  #v-dash .item-main { padding: 0 4px 4px; }
+
+  /* ---- 1. Formulaire : aperçu en direct à droite ---- */
+  .page.with-preview {
+    display: grid; grid-template-columns: minmax(0, 600px) 360px; gap: 56px; justify-content: center; align-items: start;
+  }
+  .page.with-preview .window { width: 100%; }
+  .pv { display: flex; flex-direction: column; align-items: center; gap: 12px; position: sticky; top: 24px; }
+  .pv-label { margin: 0; font-size: 12px; letter-spacing: .18em; text-transform: uppercase; color: #c9567d; }
+  .pv-tip { margin: 0; max-width: 30ch; text-align: center; font-size: 13px; color: #7a4a5c; line-height: 1.5; }
+  .phone {
+    width: 340px; height: min(700px, calc(100vh - 140px)); box-sizing: border-box;
+    border: 10px solid #2b2226; border-radius: 44px; overflow: hidden; background: #2b2226;
+    box-shadow: 0 30px 60px -24px rgba(90, 42, 60, .55); position: relative;
+  }
+  .phone::before { content: ""; position: absolute; z-index: 2; top: 6px; left: 50%; transform: translateX(-50%); width: 90px; height: 20px; border-radius: 20px; background: #2b2226; }
+  .phone-screen {
+    height: 100%; overflow-y: auto; border: 0; border-radius: 34px; box-sizing: border-box;
+    padding: 38px 16px 20px; display: flex; flex-direction: column; gap: 22px; scrollbar-width: thin;
+  }
+  .pv-sec { display: flex; flex-direction: column; gap: 12px; }
+  .pv-sec + .pv-sec { border-top: 3px dotted rgba(255, 250, 251, .6); padding-top: 20px; }
+  .pv-heartwrap { width: 150px; align-self: center; }
+  .pv-dots { display: flex; justify-content: center; gap: 8px; background: #fbe3ea; border: 2px solid #c9567d; border-radius: 999px; padding: 9px; }
+  .pv-hint { text-align: center; font: italic 500 17px/1.3 var(--f-hand); color: #fffafb; }
+  .pv-hint:empty { display: none; }
+  .pv-banner { height: 130px; border-radius: 10px; border: 2px solid #c9567d; background-size: cover; background-position: center; }
+  .phone-screen .avatar { width: 54px; height: 54px; }
+  .phone-screen .bubble { font-size: 15px; padding: 8px 12px; }
+  .phone-screen .stats { gap: 6px; }
+  .phone-screen .stat { padding: 8px 4px; }
+  .phone-screen .stat b { font-size: 20px; }
+  .phone-screen .stat b#pvSince { font-size: 14px; line-height: 1.6; white-space: nowrap; }
+  .phone-screen .stat span { font-size: 8.5px; }
+  .pv-paper { background: #fffafb; border-radius: 4px; padding: 16px 16px 12px; display: flex; flex-direction: column; gap: 8px; transform: rotate(-1deg); box-shadow: 0 10px 20px -8px rgba(90, 42, 60, .45); }
+  .pv-paper h3 { margin: 0; font: 400 26px/1.2 var(--f-script); color: #b0123c; }
+  .pv-paper p { margin: 0; font: italic 500 15px/21px var(--f-hand); color: #5a2a3c; white-space: pre-line; }
+  .pv-paper .sign { align-self: flex-end; font: 400 22px var(--f-script); color: #b0123c; }
+  .pv-paper h3:empty, .pv-paper .sign:empty { display: none; }
+  .pv-strip { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+  .pv-pol { background: #fffafb; padding: 6px 6px 4px; box-shadow: 0 3px 8px rgba(90, 42, 60, .25); }
+  .pv-pol:nth-child(odd) { transform: rotate(-2deg); }
+  .pv-pol:nth-child(even) { transform: rotate(2deg); }
+  .pv-pol .photo { aspect-ratio: 1; background-size: cover; background-position: center; }
+  .pv-pol span { display: block; text-align: center; padding-top: 4px; font: italic 500 13px/1.15 var(--f-hand); color: #5a2a3c; min-height: 10px; overflow-wrap: anywhere; }
+
+  /* ---- 4. Surprise reçue : cadre de téléphone, décor autour ---- */
+  #v-surprise .window { border: 12px solid #2b2226; border-radius: 48px; padding-top: 14px; box-shadow: 0 40px 80px -30px rgba(90, 42, 60, .6); }
+  #v-surprise .window::before { inset: auto; top: 4px; left: 50%; transform: translateX(-50%); width: 96px; height: 18px; border: 0; border-radius: 18px; background: #2b2226; }
+  .ambient { display: block; position: fixed; inset: 0; z-index: 0; pointer-events: none; overflow: hidden; }
+  .amb-p {
+    position: absolute; width: clamp(120px, 11vw, 180px); background: #fffafb; padding: 10px 10px 30px;
+    box-shadow: 0 10px 24px -8px rgba(90, 42, 60, .4); transform: rotate(var(--r)); opacity: 0;
+    filter: blur(1.5px); animation: ambIn 1.2s ease forwards;
+  }
+  .amb-p i { display: block; aspect-ratio: 1; background-size: cover; background-position: center; }
+  @keyframes ambIn { to { opacity: .55; } }
+  .amb-h { position: absolute; bottom: -40px; color: #e07a9c; opacity: 0; animation: rise 22s linear infinite; }
+  @keyframes rise { 0% { transform: translateY(0); opacity: 0; } 10% { opacity: .55; } 85% { opacity: .4; } 100% { transform: translateY(-110vh); opacity: 0; } }
+
+  /* ---- 5. Espace propriétaire : pleine largeur, sections en grille ---- */
+  #v-owner .window { width: min(1180px, 100%); }
+  #v-owner .panel { display: grid; grid-template-columns: 1fr 1fr; gap: 28px 36px; align-items: start; }
+  #v-owner .panel > .actions { grid-column: 1 / -1; }
+}
+@media (min-width: 1000px) and (prefers-reduced-motion: reduce) {
+  .amb-h { display: none; }
+}

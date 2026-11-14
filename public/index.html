@@ -77,7 +77,18 @@
 </div>
 
 <!-- ============ Connexion admin ============ -->
-<div class="view page" id="v-auth" hidden>
+<div class="view page split" id="v-auth" hidden>
+  <aside class="side-art" aria-hidden="true">
+    <p class="kicker">Ma lettre pour toi</p>
+    <p class="side-title">Prépare une surprise<br><em>qu'on n'oublie pas.</em></p>
+    <div class="hero-art side-visual">
+      <div class="ha-envelope"><span class="ha-flap"></span><span class="ha-seal">♥</span></div>
+      <div class="ha-polaroid p1"><img src="demo/1.svg" alt=""><span>Notre coucher de soleil</span></div>
+      <div class="ha-polaroid p2"><img src="demo/3.svg" alt=""><span>Nos dimanches</span></div>
+      <div class="ha-code"><i class="on"></i><i class="on"></i><i class="on"></i><i></i><i></i><i></i></div>
+    </div>
+    <p class="side-note">Pas encore de compte ? <a class="linkbtn" href="?demo">Voir la démo</a> ou <a class="linkbtn" href="?essai">essayer sans compte</a>.</p>
+  </aside>
   <div class="window">
     <div class="titlebar"><span>Connexion</span></div>
     <form class="panel" id="authForm">
@@ -119,6 +130,7 @@
   <div class="window">
     <div class="titlebar"><span>Espace propriétaire</span><button class="xbtn" id="ownerClose" type="button" aria-label="Retour à mes surprises">×</button></div>
     <div class="panel">
+      <section class="ow-sec">
       <h2>CODES D'ACTIVATION</h2>
       <form class="gen" id="genForm">
         <label class="field"><span>Nombre</span><input type="text" id="g-count" inputmode="numeric" value="1" maxlength="2"></label>
@@ -128,13 +140,19 @@
       <span class="msg" id="genMsg" role="status"></span>
       <div class="table-wrap"><table class="tbl" id="codesTbl"></table></div>
 
+      </section>
+      <section class="ow-sec">
       <h2>CLIENTS</h2>
       <div class="table-wrap"><table class="tbl" id="membersTbl"></table></div>
 
+      </section>
+      <section class="ow-sec">
       <h2>COMPTES NON ACTIVÉS</h2>
       <p class="intro">Inscrits sans code valide. Ils ne peuvent rien faire ; tu peux les supprimer.</p>
       <div class="table-wrap"><table class="tbl" id="pendingTbl"></table></div>
 
+      </section>
+      <section class="ow-sec">
       <h2>MAINTENANCE</h2>
       <p class="intro">Photos envoyées mais utilisées par aucune surprise depuis plus de 24 h (envoi abandonné, erreur…).</p>
       <div class="actions">
@@ -142,6 +160,7 @@
         <button type="button" class="pill" id="orphFind">Chercher les photos inutilisées</button>
         <button type="button" class="pill danger" id="orphDel" hidden>Supprimer</button>
       </div>
+      </section>
 
       <div class="actions">
         <span class="msg" id="ownerMsg" role="status"></span>
@@ -172,6 +191,7 @@
     <div class="titlebar"><span>Mes surprises</span></div>
     <div class="panel">
       <div class="who"><span id="whoEmail"></span><span class="who-btns"><button type="button" class="pill solid" id="ownerBtn" hidden>★ Propriétaire</button><button type="button" class="pill" id="logoutBtn">Se déconnecter</button></span></div>
+      <div class="dash-stats" id="dashStats"></div>
       <p class="intro">Chaque surprise a son propre lien. La personne qui l'ouvre ne voit que la sienne, après avoir tapé le code.</p>
       <div class="list" id="list"></div>
       <div class="actions">
@@ -187,7 +207,7 @@
 </div>
 
 <!-- ============ Réglages d'une surprise ============ -->
-<div class="view page" id="v-form" hidden>
+<div class="view page with-preview" id="v-form" hidden>
   <div class="window">
     <div class="titlebar"><span>Ta surprise</span><button class="xbtn" id="formClose" type="button" aria-label="Retour à mes surprises">×</button></div>
     <form class="panel" id="form">
@@ -215,10 +235,33 @@
       </div>
     </form>
   </div>
+  <aside class="pv" aria-label="Aperçu en direct de la surprise">
+    <p class="pv-label">Aperçu en direct</p>
+    <div class="phone"><div class="phone-screen">
+      <section class="pv-sec">
+        <div class="heart-wrap pv-heartwrap"><div class="heart photo" id="pvHeart"></div></div>
+        <div class="pv-dots" id="pvDots"></div>
+        <div class="pv-hint" id="pvHint"></div>
+      </section>
+      <section class="pv-sec">
+        <div class="pv-banner photo" id="pvBanner"></div>
+        <div class="me"><div class="avatar photo" id="pvAvatar"></div><div class="bubble" id="pvStatus"></div></div>
+        <div class="stats">
+          <div class="stat"><b id="pvDays">—</b><span>jours ensemble</span></div>
+          <div class="stat"><b id="pvSince">—</b><span>depuis</span></div>
+          <div class="stat"><b>∞</b><span>bisous</span></div>
+        </div>
+      </section>
+      <section class="pv-sec"><article class="pv-paper"><h3 id="pvTitle"></h3><div id="pvBody"></div><span class="sign" id="pvSign"></span></article></section>
+      <section class="pv-sec"><div class="pv-strip" id="pvStrip"></div></section>
+    </div></div>
+    <p class="pv-tip">Ce que verra la personne une fois le code trouvé. L'aperçu suit ce que tu écris.</p>
+  </aside>
 </div>
 
 <!-- ============ La surprise (ce que voit la personne) ============ -->
 <div class="view wrap" id="v-surprise" hidden>
+  <div class="ambient" id="ambient" aria-hidden="true"></div>
   <div class="demo-bar" id="demoBar" hidden>
     <span id="demoText"></span>
     <a class="pill" id="demoBack" href="./">← Retour</a>
