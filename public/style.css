@@ -710,3 +710,13 @@ a.pill { text-decoration: none; }
 @media (min-width: 1000px) {
   #v-dash .trash-list { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); }
 }
+
+/* ---------- Toucher sur téléphone ----------
+   Retire le carré bleu que Chrome / Android affiche quand on touche un bouton ou un lien,
+   et le remplace par un léger enfoncement. Le contour clavier (:focus-visible) est gardé. */
+html { -webkit-tap-highlight-color: transparent; }
+*, *::before, *::after { -webkit-tap-highlight-color: transparent; }
+button, a, summary, label, input, textarea, .key, .pill { touch-action: manipulation; }
+:focus:not(:focus-visible) { outline: none; }
+.pill:active, .xbtn:active, .linkbtn:active { transform: scale(.96); }
+.key:active { transform: scale(.94); }
